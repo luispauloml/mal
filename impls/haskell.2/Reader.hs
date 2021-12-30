@@ -4,6 +4,9 @@ import Control.Applicative
 import Control.Monad
 import Data.Char
 
+import Text.Read.Lex (readDecP)
+import Text.ParserCombinators.ReadP (readP_to_S)
+
 import Types
 
 -- ------------------------------------------------------------
@@ -64,6 +67,12 @@ stringP :: String -> Parser String
 stringP s = sequence $ map charP s
 
 -- ------------------------------------------------------------
+-- Auxiliary functions
+
+isPunctOrSpace :: Char -> Bool
+isPunctOrSpace c = or $ map ($c) [isPunctuation, isSpace]
+
+-- ------------------------------------------------------------
 -- Parsers
 
 nilP :: Parser LispVal
@@ -73,7 +82,13 @@ trueP :: Parser LispVal
 trueP = const LispTrue <$> do
   t <- charP 't'
   rst <- lookP
-  let check = runParser (checkNextP cases) rst
+  let check = runParser (checkNextP isPunctOrSpace) rst
   guard $ null rst || maybe False (const True) check
   return t
-  where cases c = or $ map ($c) [isPunctuation, isSpace]
+
+intP :: Parser LispVal
+intP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
+  where convert [] = Nothing
+        convert [(n, c)] = case c of
+          [] -> Just (n, c)
+          _  -> runParser (checkNextP isPunctOrSpace) c >>= (const $ Just (n, c))
