@@ -41,13 +41,23 @@ instance Monad Parser where
 
 nextP :: Parser Char
 nextP = Parser $ \str -> case str of
-  (c:s) -> return (c, s)
+  (c:s) -> Just (c, s)
   _     -> Nothing
 
 charP :: Char -> Parser Char
-charP c = do
-  x <- nextP
-  guard (x == c)
+charP c = checkNextP (== c)
+
+lookP :: Parser String
+lookP = Parser $ \str -> Just (str, str)
+
+takeWhileP :: (Char -> Bool) -> Parser String
+takeWhileP p = Parser $ \str ->
+  Just (takeWhile p str, dropWhile p str)
+
+checkNextP :: (Char -> Bool) -> Parser Char
+checkNextP p = do
+  c <- nextP
+  guard (p c)
   return c
 
 stringP :: String -> Parser String
@@ -58,3 +68,12 @@ stringP s = sequence $ map charP s
 
 nilP :: Parser LispVal
 nilP = const Nil <$> stringP "()"
+
+trueP :: Parser LispVal
+trueP = const LispTrue <$> do
+  t <- charP 't'
+  rst <- lookP
+  let check = runParser (checkNextP cases) rst
+  guard $ null rst || maybe False (const True) check
+  return t
+  where cases c = or $ map ($c) [isPunctuation, isSpace]
