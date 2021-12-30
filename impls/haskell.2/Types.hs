@@ -9,4 +9,5 @@ data LispVal
   | String String
   | Nil
   | LispTrue
+  | Quote LispVal
   deriving (Show, Eq)

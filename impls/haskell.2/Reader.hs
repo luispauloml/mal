@@ -63,6 +63,9 @@ checkNextP p = do
   guard (p c)
   return c
 
+checkAndReparse :: Parser check -> Parser a -> Parser a
+checkAndReparse check p = Parser $ \str -> runParser check str >> runParser p str
+
 stringP :: String -> Parser String
 stringP s = sequence $ map charP s
 
@@ -120,12 +123,16 @@ lispListP = listToNil <$> enclosedP open close (many $ whitespaceP >> lispValP)
         listToNil ls      = List ls
 
 lispAtomP :: Parser LispVal
-lispAtomP = fmap Atom $ Parser $ \str -> runParser n str >> runParser y str
+lispAtomP = Atom <$> checkAndReparse n y
   where n = checkNextP (\c -> not $ or $ map ($c) notCases)
         y = takeWhileP (\c -> and $ map ($ c) cases)
         notCases = [isNumber]          ++ map (==) "'\"()[]{}"
         cases    = [not . isSeparator] ++ map (/=) "()[]{}"
 
+lispQuoteP :: Parser LispVal
+lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
+
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
-        <|> lispStringP <|> lispAtomP <|> lispListP 
+        <|> lispStringP <|> lispAtomP <|> lispListP
+        <|> lispQuoteP
