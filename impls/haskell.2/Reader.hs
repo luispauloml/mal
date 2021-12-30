@@ -107,7 +107,7 @@ lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
   where convert [] = Nothing
         convert [(n, c)] = case c of
           [] -> Just (n, c)
-          _  -> runParser (checkNextP isPunctOrSpace) c >>= (const $ Just (n, c))
+          _  -> runParser (checkNextP isPunctOrSpace) c >> Just (n, c)
 
 lispStringP :: Parser LispVal
 lispStringP = String <$> enclosedP (charP '"') (charP '"') (takeWhileP (/= '"'))
@@ -117,6 +117,13 @@ lispListP = List <$> enclosedP open close (many $ whitespaceP >> lispValP)
         open              = enclosedBySpace $ charP '('
         close             = enclosedBySpace $ charP ')'
 
+lispAtomP :: Parser LispVal
+lispAtomP = fmap Atom $ Parser $ \str -> runParser n str >> runParser y str
+  where n = checkNextP (\c -> not $ or $ map ($c) notCases)
+        y = takeWhileP (\c -> and $ map ($ c) cases)
+        notCases = [isNumber]          ++ map (==) "'\"()[]{}"
+        cases    = [not . isSeparator] ++ map (/=) "()[]{}"
+
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
-        <|> lispStringP <|> lispListP
+        <|> lispStringP <|> lispAtomP <|> lispListP 
