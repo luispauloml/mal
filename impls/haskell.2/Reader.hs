@@ -73,6 +73,15 @@ enclosedP open close p = do
   _ <- close
   return x
 
+enclosedOptionalP :: Parser open -> Parser close -> Parser a -> Parser a
+enclosedOptionalP open close p  = before <|> between <|> after
+  where before  = do open; p
+        between = enclosedP open close p
+        after   = do x <- p; close; return x
+
+whitespaceP :: Parser String
+whitespaceP = takeWhileP isSpace
+
 -- ------------------------------------------------------------
 -- Auxiliary functions
 
@@ -102,3 +111,12 @@ lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
 
 lispStringP :: Parser LispVal
 lispStringP = String <$> enclosedP (charP '"') (charP '"') (takeWhileP (/= '"'))
+
+lispListP = List <$> enclosedP open close (many $ whitespaceP >> lispValP)
+  where enclosedBySpace p = enclosedOptionalP whitespaceP whitespaceP p
+        open              = enclosedBySpace $ charP '('
+        close             = enclosedBySpace $ charP ')'
+
+lispValP :: Parser LispVal
+lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
+        <|> lispStringP <|> lispListP
