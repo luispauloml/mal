@@ -112,10 +112,12 @@ lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
 lispStringP :: Parser LispVal
 lispStringP = String <$> enclosedP (charP '"') (charP '"') (takeWhileP (/= '"'))
 
-lispListP = List <$> enclosedP open close (many $ whitespaceP >> lispValP)
+lispListP = listToNil <$> enclosedP open close (many $ whitespaceP >> lispValP)
   where enclosedBySpace p = enclosedOptionalP whitespaceP whitespaceP p
         open              = enclosedBySpace $ charP '('
         close             = enclosedBySpace $ charP ')'
+        listToNil []      = Nil
+        listToNil ls      = List ls
 
 lispAtomP :: Parser LispVal
 lispAtomP = fmap Atom $ Parser $ \str -> runParser n str >> runParser y str
