@@ -133,6 +133,9 @@ lispListP = lispEnclosedP listToNil (charP '(') (charP ')')
 lispVectP :: Parser LispVal
 lispVectP = lispEnclosedP Vector (charP '[') (charP ']')
 
+lispSetP :: Parser LispVal
+lispSetP = lispEnclosedP Set (charP '{') (charP '}')
+
 lispAtomP :: Parser LispVal
 lispAtomP = Atom <$> checkAndReparse n y
   where n = checkNextP (\c -> not $ or $ map ($c) notCases)
@@ -146,4 +149,4 @@ lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
-        <|> lispQuoteP  <|> lispVectP
+        <|> lispQuoteP  <|> lispVectP <|> lispSetP
