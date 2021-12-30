@@ -140,13 +140,20 @@ lispAtomP :: Parser LispVal
 lispAtomP = Atom <$> checkAndReparse n y
   where n = checkNextP (\c -> not $ or $ map ($c) notCases)
         y = takeWhileP (\c -> and $ map ($ c) cases)
-        notCases = [isNumber]          ++ map (==) "'\"()[]{}"
+        notCases = [isNumber]          ++ map (==) "'`~\"()[]{}"
         cases    = [not . isSeparator] ++ map (/=) "()[]{}"
 
 lispQuoteP :: Parser LispVal
 lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
 
+lispQuasiP :: Parser LispVal
+lispQuasiP = QuasiQuote <$> checkAndReparse (charP '`') (nextP >> lispValP)
+
+lispUnqtP :: Parser LispVal
+lispUnqtP = Unquote <$> checkAndReparse (charP '~') (nextP >> lispValP)
+
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
         <|> lispQuoteP  <|> lispVectP <|> lispSetP
+        <|> lispQuasiP  <|> lispUnqtP

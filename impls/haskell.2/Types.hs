@@ -10,4 +10,6 @@ data LispVal
   | Nil
   | LispTrue
   | Quote LispVal
+  | QuasiQuote LispVal
+  | Unquote LispVal
   deriving (Show, Eq)
