@@ -66,6 +66,13 @@ checkNextP p = do
 stringP :: String -> Parser String
 stringP s = sequence $ map charP s
 
+enclosedP :: Parser open -> Parser close -> Parser a -> Parser a
+enclosedP open close p = do
+  _ <- open
+  x <- p
+  _ <- close
+  return x
+
 -- ------------------------------------------------------------
 -- Auxiliary functions
 
@@ -93,3 +100,5 @@ lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
           [] -> Just (n, c)
           _  -> runParser (checkNextP isPunctOrSpace) c >>= (const $ Just (n, c))
 
+lispStringP :: Parser LispVal
+lispStringP = String <$> enclosedP (charP '"') (charP '"') (takeWhileP (/= '"'))
