@@ -115,12 +115,23 @@ lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
 lispStringP :: Parser LispVal
 lispStringP = String <$> enclosedP (charP '"') (charP '"') (takeWhileP (/= '"'))
 
-lispListP = listToNil <$> enclosedP open close (many $ whitespaceP >> lispValP)
+lispEnclosedP :: ([LispVal] -> LispVal)
+              -> Parser open
+              -> Parser close
+              -> Parser LispVal
+lispEnclosedP conv op cl
+  = conv <$> enclosedP open close (many $ whitespaceP >> lispValP)
   where enclosedBySpace p = enclosedOptionalP whitespaceP whitespaceP p
-        open              = enclosedBySpace $ charP '('
-        close             = enclosedBySpace $ charP ')'
-        listToNil []      = Nil
-        listToNil ls      = List ls
+        open              = enclosedBySpace $ op
+        close             = enclosedBySpace $ cl
+
+lispListP :: Parser LispVal
+lispListP = lispEnclosedP listToNil (charP '(') (charP ')')
+  where listToNil [] = Nil
+        listToNil a  = List a
+
+lispVectP :: Parser LispVal
+lispVectP = lispEnclosedP Vector (charP '[') (charP ']')
 
 lispAtomP :: Parser LispVal
 lispAtomP = Atom <$> checkAndReparse n y
@@ -135,4 +146,4 @@ lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
-        <|> lispQuoteP
+        <|> lispQuoteP  <|> lispVectP
