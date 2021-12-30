@@ -12,4 +12,5 @@ data LispVal
   | Quote LispVal
   | QuasiQuote LispVal
   | Unquote LispVal
+  | SpliceUnquote LispVal
   deriving (Show, Eq)

@@ -152,8 +152,12 @@ lispQuasiP = QuasiQuote <$> checkAndReparse (charP '`') (nextP >> lispValP)
 lispUnqtP :: Parser LispVal
 lispUnqtP = Unquote <$> checkAndReparse (charP '~') (nextP >> lispValP)
 
+lispSpliceP :: Parser LispVal
+lispSpliceP = SpliceUnquote <$>
+  checkAndReparse (stringP "~@") (nextP >> nextP >> lispValP)
+
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
         <|> lispQuoteP  <|> lispVectP <|> lispSetP
-        <|> lispQuasiP  <|> lispUnqtP
+        <|> lispSpliceP <|> lispQuasiP<|> lispUnqtP
