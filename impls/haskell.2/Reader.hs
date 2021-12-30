@@ -75,20 +75,21 @@ isPunctOrSpace c = or $ map ($c) [isPunctuation, isSpace]
 -- ------------------------------------------------------------
 -- Parsers
 
-nilP :: Parser LispVal
-nilP = const Nil <$> stringP "()"
+lispNilP :: Parser LispVal
+lispNilP = const Nil <$> stringP "()"
 
-trueP :: Parser LispVal
-trueP = const LispTrue <$> do
+lispTrueP :: Parser LispVal
+lispTrueP = const LispTrue <$> do
   t <- charP 't'
   rst <- lookP
   let check = runParser (checkNextP isPunctOrSpace) rst
   guard $ null rst || maybe False (const True) check
   return t
 
-intP :: Parser LispVal
-intP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
+lispIntP :: Parser LispVal
+lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
   where convert [] = Nothing
         convert [(n, c)] = case c of
           [] -> Just (n, c)
           _  -> runParser (checkNextP isPunctOrSpace) c >>= (const $ Just (n, c))
+
