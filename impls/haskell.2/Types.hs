@@ -2,15 +2,15 @@ module Types where
 
 data LispVal
   = Atom String
-  | List [LispVal]
-  | Set [LispVal]
-  | Vector [LispVal]
-  | Int Int
-  | String String
-  | Nil
+  | Int           Int
   | LispTrue
-  | Quote LispVal
-  | QuasiQuote LispVal
-  | Unquote LispVal
+  | List          [LispVal]
+  | Nil
+  | QuasiQuote    LispVal
+  | Quote         LispVal
+  | Set           [LispVal]
   | SpliceUnquote LispVal
+  | String        String
+  | Unquote       LispVal
+  | Vector        [LispVal]
   deriving (Show, Eq)

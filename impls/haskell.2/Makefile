@@ -1,5 +1,5 @@
-SRCS = step0_repl.hs
-OTHER_SRCS =
+SRCS = step0_repl.hs step1_read_print.hs
+OTHER_SRCS = Types.hs Reader.hs Printer.hs
 BINS = $(SRCS:%.hs=%)
 ghc_flags = -Wall
 
