@@ -161,3 +161,6 @@ lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
         <|> lispQuoteP  <|> lispVectP <|> lispSetP
         <|> lispSpliceP <|> lispQuasiP<|> lispUnqtP
+
+read_str :: String -> Maybe LispVal
+read_str str = fst <$> runParser (whitespaceP >> lispValP) str
