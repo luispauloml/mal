@@ -4,6 +4,7 @@ import Control.Applicative
 import Control.Monad
 import Data.Char
 
+import Text.Read (readMaybe)
 import Text.Read.Lex (readDecP)
 import Text.ParserCombinators.ReadP (readP_to_S)
 
@@ -91,6 +92,10 @@ whitespaceP = takeWhileP isSpace
 isPunctOrSpace :: Char -> Bool
 isPunctOrSpace c = or $ map ($c) [isPunctuation, isSpace]
 
+headMaybe :: [a] -> Maybe a
+headMaybe []     = Nothing
+headMaybe (x:xs) = Just x
+
 -- ------------------------------------------------------------
 -- Parsers
 
@@ -113,7 +118,11 @@ lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
           _  -> runParser (checkNextP isPunctOrSpace) c >> Just (n, c)
 
 lispStringP :: Parser LispVal
-lispStringP = String <$> enclosedP (charP '"') (charP '"') (takeWhileP (/= '"'))
+lispStringP = let read' = readMaybe :: String -> Maybe String
+              in fmap String $ Parser $ \str -> do
+                 (a, b) <- headMaybe (lex str)
+                 s      <- read' a
+                 return (s, b)
 
 lispEnclosedP :: ([LispVal] -> LispVal)
               -> Parser open
