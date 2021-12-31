@@ -14,7 +14,9 @@ lispPrint :: LispVal -> String
 lispPrint = pr_str
 
 rep :: String -> String
-rep str = maybe "error: no parse" (lispPrint . lispEval) (lispRead str)
+rep str = maybe "error: end of input or no parse"
+                (lispPrint . lispEval)
+                (lispRead str)
 
 repl :: IO ()
 repl = do
