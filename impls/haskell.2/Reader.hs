@@ -140,7 +140,7 @@ lispAtomP :: Parser LispVal
 lispAtomP = Atom <$> checkAndReparse n y
   where n = checkNextP (\c -> not $ or $ map ($c) notCases)
         y = takeWhileP (\c -> and $ map ($ c) cases)
-        notCases = [isNumber]          ++ map (==) "'`~\"()[]{}"
+        notCases = [isNumber]          ++ map (==) "'`~\"()[]{}@"
         cases    = [not . isSeparator] ++ map (/=) "()[]{}"
 
 lispQuoteP :: Parser LispVal
@@ -156,11 +156,16 @@ lispSpliceP :: Parser LispVal
 lispSpliceP = SpliceUnquote <$>
   checkAndReparse (stringP "~@") (nextP >> nextP >> lispValP)
 
+lispDerefP :: Parser LispVal
+lispDerefP = Deref <$>
+  checkAndReparse (charP '@') (nextP >> lispValP)
+
 lispValP :: Parser LispVal
 lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
         <|> lispQuoteP  <|> lispVectP <|> lispSetP
         <|> lispSpliceP <|> lispQuasiP<|> lispUnqtP
+        <|> lispDerefP
 
 read_str :: String -> Maybe LispVal
 read_str str = fst <$> runParser (whitespaceP >> lispValP) str

@@ -2,6 +2,7 @@ module Types where
 
 data LispVal
   = Atom String
+  | Deref         LispVal
   | Int           Int
   | LispTrue
   | List          [LispVal]
