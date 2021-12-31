@@ -149,7 +149,7 @@ lispAtomP :: Parser LispVal
 lispAtomP = Atom <$> checkAndReparse n y
   where n = checkNextP (\c -> not $ or $ map ($c) notCases)
         y = takeWhileP (\c -> and $ map ($ c) cases)
-        notCases = [isNumber]          ++ map (==) "'`~\"()[]{}@"
+        notCases = [isNumber, isPunctuation] ++ map (==) "'`~\"()[]{}@"
         cases    = [not . isSeparator] ++ map (/=) "()[]{}"
 
 lispQuoteP :: Parser LispVal
