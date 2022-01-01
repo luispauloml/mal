@@ -200,7 +200,7 @@ lispMetaP = do
   s <- lispSetP
   whitespaceP
   v <- lispVectP
-  return (Meta (s, v))
+  return (Keyword "with-meta" $ List [s, v])
 
 lispValP :: Parser LispVal
 lispValP = choiceP [ lispNilP,    lispIntP,   lispTrueP

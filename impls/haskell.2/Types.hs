@@ -7,7 +7,6 @@ data LispVal
   | Keyword       String LispVal
   | LispTrue
   | List          [LispVal]
-  | Meta          (LispVal, LispVal)
   | Nil
   | Set           [LispVal]
   | String        String
