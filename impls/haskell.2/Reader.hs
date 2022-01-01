@@ -175,7 +175,8 @@ lispOpP = fmap Atom $ singleChar <|> multiChar
           return [c]
 
 lispQuoteP :: Parser LispVal
-lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
+lispQuoteP = Keyword "quote" <$>
+  checkAndReparse (charP '\'') (nextP >> lispValP)
 
 lispQuasiP :: Parser LispVal
 lispQuasiP = QuasiQuote <$> checkAndReparse (charP '`') (nextP >> lispValP)
