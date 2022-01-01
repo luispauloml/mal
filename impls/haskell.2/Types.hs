@@ -6,6 +6,7 @@ data LispVal
   | Int           Int
   | LispTrue
   | List          [LispVal]
+  | Meta          (LispVal, LispVal)
   | Nil
   | QuasiQuote    LispVal
   | Quote         LispVal

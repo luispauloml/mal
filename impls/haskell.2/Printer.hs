@@ -12,6 +12,7 @@ pr_str (List l)          = pr_enclosed "(" ")" " " l
 pr_str (Vector v)        = pr_enclosed "[" "]" " " v
 pr_str (Set s)           = pr_enclosed "{" "}" " " s
 pr_str (Deref v)         = "(deref "          ++ pr_str v ++ ")"
+pr_str (Meta (s, v))     = "(with-meta "      ++ pr_str v ++ " " ++ pr_str s ++ ")"
 pr_str (QuasiQuote v)    = "(quasiquote "     ++ pr_str v ++ ")"
 pr_str (Quote v)         = "(quote "          ++ pr_str v ++ ")"
 pr_str (SpliceUnquote v) = "(splice-unquote " ++ pr_str v ++ ")"

@@ -191,12 +191,21 @@ lispDerefP :: Parser LispVal
 lispDerefP = Deref <$>
   checkAndReparse (charP '@') (nextP >> lispValP)
 
+lispMetaP :: Parser LispVal
+lispMetaP = do
+  charP '^'
+  s <- lispSetP
+  whitespaceP
+  v <- lispVectP
+  return (Meta (s, v))
+
 lispValP :: Parser LispVal
 lispValP = choiceP [ lispNilP,    lispIntP,   lispTrueP
-                   , lispStringP, lispAtomP,  lispListP
+                   , lispStringP, lispMetaP,  lispAtomP
                    , lispQuoteP , lispVectP,  lispSetP
                    , lispSpliceP, lispQuasiP, lispUnqtP
-                   , lispDerefP , lispKwP,    lispOpP ]
+                   , lispDerefP , lispKwP,    lispOpP
+                   , lispListP ]
 
 read_str :: String -> Maybe LispVal
 read_str str = fst <$> runParser (whitespaceP >> lispValP) str
