@@ -9,7 +9,6 @@ data LispVal
   | List          [LispVal]
   | Meta          (LispVal, LispVal)
   | Nil
-  | QuasiQuote    LispVal
   | Set           [LispVal]
   | SpliceUnquote LispVal
   | String        String

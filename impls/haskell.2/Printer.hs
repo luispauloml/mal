@@ -13,7 +13,6 @@ pr_str (Vector v)        = pr_enclosed "[" "]" " " v
 pr_str (Set s)           = pr_enclosed "{" "}" " " s
 pr_str (Deref v)         = "(deref "          ++ pr_str v ++ ")"
 pr_str (Meta (s, v))     = "(with-meta "      ++ pr_str v ++ " " ++ pr_str s ++ ")"
-pr_str (QuasiQuote v)    = "(quasiquote "     ++ pr_str v ++ ")"
 pr_str (SpliceUnquote v) = "(splice-unquote " ++ pr_str v ++ ")"
 pr_str (Unquote v)       = "(unquote "        ++ pr_str v ++ ")"
 pr_str (Keyword s v)     = "(" ++ s ++ " " ++ pr_str v ++ ")"

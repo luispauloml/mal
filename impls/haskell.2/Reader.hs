@@ -179,7 +179,8 @@ lispQuoteP = Keyword "quote" <$>
   checkAndReparse (charP '\'') (nextP >> lispValP)
 
 lispQuasiP :: Parser LispVal
-lispQuasiP = QuasiQuote <$> checkAndReparse (charP '`') (nextP >> lispValP)
+lispQuasiP = Keyword "quasiquote" <$>
+  checkAndReparse (charP '`') (nextP >> lispValP)
 
 lispUnqtP :: Parser LispVal
 lispUnqtP = Unquote <$> checkAndReparse (charP '~') (nextP >> lispValP)
