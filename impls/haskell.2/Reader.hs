@@ -96,6 +96,8 @@ headMaybe :: [a] -> Maybe a
 headMaybe []     = Nothing
 headMaybe (x:xs) = Just x
 
+readP_to_Parser p = Parser $ \str -> headMaybe $ readP_to_S p str
+
 -- ------------------------------------------------------------
 -- Parsers
 
@@ -111,11 +113,9 @@ lispTrueP = const LispTrue <$> do
   return t
 
 lispIntP :: Parser LispVal
-lispIntP = fmap Int $ Parser $ \str -> convert $ readP_to_S readDecP str
-  where convert [] = Nothing
-        convert [(n, c)] = case c of
-          [] -> Just (n, c)
-          _  -> runParser (checkNextP isPunctOrSpace) c >> Just (n, c)
+lispIntP  = fmap Int $ positive <|> (negate <$> negative)
+  where positive = readP_to_Parser readDecP
+        negative = charP '-' >> positive
 
 lispStringP :: Parser LispVal
 lispStringP = let read' = readMaybe :: String -> Maybe String
