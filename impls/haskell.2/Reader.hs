@@ -152,6 +152,12 @@ lispAtomP = Atom <$> checkAndReparse n y
         notCases = [isNumber, isPunctuation] ++ map (==) "'`~\"()[]{}@"
         cases    = [not . isSeparator] ++ map (/=) "()[]{}"
 
+lispKwP :: Parser LispVal
+lispKwP = let atomMap f (Atom s) = Atom (f s) in
+          do charP ':'
+             a <- lispAtomP
+             return $ atomMap (':':) a
+
 lispQuoteP :: Parser LispVal
 lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
 
@@ -174,7 +180,7 @@ lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
         <|> lispStringP <|> lispAtomP <|> lispListP
         <|> lispQuoteP  <|> lispVectP <|> lispSetP
         <|> lispSpliceP <|> lispQuasiP<|> lispUnqtP
-        <|> lispDerefP
+        <|> lispDerefP  <|> lispKwP
 
 read_str :: String -> Maybe LispVal
 read_str str = fst <$> runParser (whitespaceP >> lispValP) str
