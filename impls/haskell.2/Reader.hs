@@ -43,6 +43,9 @@ instance Monad Parser where
 -- ------------------------------------------------------------
 -- Primitve operations
 
+failP :: Parser a
+failP = Parser $ const Nothing
+
 nextP :: Parser Char
 nextP = Parser $ \str -> case str of
   (c:s) -> Just (c, s)
@@ -85,6 +88,9 @@ enclosedOptionalP open close p  = before <|> between <|> after
 
 whitespaceP :: Parser String
 whitespaceP = takeWhileP isSpace
+
+choiceP :: [Parser a] -> Parser a
+choiceP ls = foldr (<|>) failP ls
 
 -- ------------------------------------------------------------
 -- Auxiliary functions
@@ -158,6 +164,15 @@ lispKwP = let atomMap f (Atom s) = Atom (f s) in
              a <- lispAtomP
              return $ atomMap (':':) a
 
+lispOpP :: Parser LispVal
+lispOpP = fmap Atom $ singleChar <|> multiChar
+  where multiChar  = choiceP $ map stringP ["->>", "**"]
+        singleChar = do
+          c <- choiceP $ map charP "-+\\*"
+          rst <- lookP
+          guard (null rst || isSpace (head rst))
+          return [c]
+
 lispQuoteP :: Parser LispVal
 lispQuoteP = Quote <$> checkAndReparse (charP '\'') (nextP >> lispValP)
 
@@ -176,11 +191,11 @@ lispDerefP = Deref <$>
   checkAndReparse (charP '@') (nextP >> lispValP)
 
 lispValP :: Parser LispVal
-lispValP =  lispNilP    <|> lispIntP  <|> lispTrueP
-        <|> lispStringP <|> lispAtomP <|> lispListP
-        <|> lispQuoteP  <|> lispVectP <|> lispSetP
-        <|> lispSpliceP <|> lispQuasiP<|> lispUnqtP
-        <|> lispDerefP  <|> lispKwP
+lispValP = choiceP [ lispNilP,    lispIntP,   lispTrueP
+                   , lispStringP, lispAtomP,  lispListP
+                   , lispQuoteP , lispVectP,  lispSetP
+                   , lispSpliceP, lispQuasiP, lispUnqtP
+                   , lispDerefP , lispKwP,    lispOpP ]
 
 read_str :: String -> Maybe LispVal
 read_str str = fst <$> runParser (whitespaceP >> lispValP) str
