@@ -183,7 +183,8 @@ lispQuasiP = Keyword "quasiquote" <$>
   checkAndReparse (charP '`') (nextP >> lispValP)
 
 lispUnqtP :: Parser LispVal
-lispUnqtP = Unquote <$> checkAndReparse (charP '~') (nextP >> lispValP)
+lispUnqtP = Keyword "unquote" <$>
+  checkAndReparse (charP '~') (nextP >> lispValP)
 
 lispSpliceP :: Parser LispVal
 lispSpliceP = SpliceUnquote <$>

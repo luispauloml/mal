@@ -12,6 +12,5 @@ data LispVal
   | Set           [LispVal]
   | SpliceUnquote LispVal
   | String        String
-  | Unquote       LispVal
   | Vector        [LispVal]
   deriving (Show, Eq)
