@@ -191,7 +191,7 @@ lispSpliceP = Keyword "splice-unquote" <$>
   checkAndReparse (stringP "~@") (nextP >> nextP >> lispValP)
 
 lispDerefP :: Parser LispVal
-lispDerefP = Deref <$>
+lispDerefP = Keyword "deref" <$>
   checkAndReparse (charP '@') (nextP >> lispValP)
 
 lispMetaP :: Parser LispVal

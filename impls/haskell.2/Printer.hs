@@ -11,7 +11,6 @@ pr_str LispTrue          = "t"
 pr_str (List l)          = pr_enclosed "(" ")" " " l
 pr_str (Vector v)        = pr_enclosed "[" "]" " " v
 pr_str (Set s)           = pr_enclosed "{" "}" " " s
-pr_str (Deref v)         = "(deref "          ++ pr_str v ++ ")"
 pr_str (Keyword s v)     = pr_kwd s v
 
 pr_enclosed :: String -> String -> String -> [LispVal] -> String
