@@ -35,4 +35,4 @@ replace :: (a -> Bool) -> [a] -> [a] -> [a]
 replace _ _ [] = []
 replace p a ls = l ++ r'
   where (l, r) = break p ls
-        r' = if null r then r else a ++ drop 1 r
+        r' = if null r then r else a ++ replace p a (drop 1 r)
