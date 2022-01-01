@@ -187,7 +187,7 @@ lispUnqtP = Keyword "unquote" <$>
   checkAndReparse (charP '~') (nextP >> lispValP)
 
 lispSpliceP :: Parser LispVal
-lispSpliceP = SpliceUnquote <$>
+lispSpliceP = Keyword "splice-unquote" <$>
   checkAndReparse (stringP "~@") (nextP >> nextP >> lispValP)
 
 lispDerefP :: Parser LispVal

@@ -10,7 +10,6 @@ data LispVal
   | Meta          (LispVal, LispVal)
   | Nil
   | Set           [LispVal]
-  | SpliceUnquote LispVal
   | String        String
   | Vector        [LispVal]
   deriving (Show, Eq)
