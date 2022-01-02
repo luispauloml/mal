@@ -6,7 +6,7 @@ import Data.Char
 
 import Text.Read (readMaybe)
 import Text.Read.Lex (readDecP)
-import Text.ParserCombinators.ReadP (readP_to_S)
+import Text.ParserCombinators.ReadP (ReadP, readP_to_S)
 
 import Types
 
@@ -82,9 +82,9 @@ enclosedP open close p = do
 
 enclosedOptionalP :: Parser open -> Parser close -> Parser a -> Parser a
 enclosedOptionalP open close p  = before <|> between <|> after
-  where before  = do open; p
+  where before  = do _ <- open; p
         between = enclosedP open close p
-        after   = do x <- p; close; return x
+        after   = do x <- p; _ <- close; return x
 
 whitespaceP :: Parser String
 whitespaceP = takeWhileP isSpace
@@ -100,8 +100,9 @@ isPunctOrSpace c = or $ map ($c) [isPunctuation, isSpace]
 
 headMaybe :: [a] -> Maybe a
 headMaybe []     = Nothing
-headMaybe (x:xs) = Just x
+headMaybe (x:_) = Just x
 
+readP_to_Parser :: ReadP a -> Parser a
 readP_to_Parser p = Parser $ \str -> headMaybe $ readP_to_S p str
 
 -- ------------------------------------------------------------
@@ -165,7 +166,7 @@ lispAtomP = Atom <$> checkAndReparse n y
 
 lispKwP :: Parser LispVal
 lispKwP = let atomMap f (Atom s) = Atom (f s) in
-          do charP ':'
+          do _ <- charP ':'
              a <- lispAtomP
              return $ atomMap (':':) a
 
@@ -200,9 +201,9 @@ lispDerefP = Keyword "deref" <$>
 
 lispMetaP :: Parser LispVal
 lispMetaP = do
-  charP '^'
+  _ <- charP '^'
   s <- lispMapP
-  whitespaceP
+  _ <- whitespaceP
   v <- lispVectP
   return (Keyword "with-meta" $ List [s, v])
 

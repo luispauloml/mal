@@ -13,9 +13,9 @@ data LispVal
   deriving (Show, Eq)
 
 fromListToMap :: LispVal -> Maybe LispVal
-fromListToMap (List v)
-  | length v `mod` 2 /= 0 = Nothing
-  | otherwise =  Just . Map $ mkTuples v
+fromListToMap (List ls)
+  | length ls `mod` 2 /= 0 = Nothing
+  | otherwise =  Just . Map $ mkTuples ls
   where mkTuples [] = []
         mkTuples (k:v:xs) = (k, v) : mkTuples xs
 fromListToMap _ = Nothing
