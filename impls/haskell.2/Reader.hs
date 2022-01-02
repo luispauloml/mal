@@ -148,8 +148,12 @@ lispListP = lispEnclosedP listToNil (charP '(') (charP ')')
 lispVectP :: Parser LispVal
 lispVectP = lispEnclosedP Vector (charP '[') (charP ']')
 
-lispSetP :: Parser LispVal
-lispSetP = lispEnclosedP Set (charP '{') (charP '}')
+lispMapP :: Parser LispVal
+lispMapP = let Parser p = lispEnclosedP List (charP '{') (charP '}')
+           in Parser $ \str -> do
+           (a, s) <- p str
+           m <- fromListToMap a
+           return (m, s)
 
 lispAtomP :: Parser LispVal
 lispAtomP = Atom <$> checkAndReparse n y
@@ -197,7 +201,7 @@ lispDerefP = Keyword "deref" <$>
 lispMetaP :: Parser LispVal
 lispMetaP = do
   charP '^'
-  s <- lispSetP
+  s <- lispMapP
   whitespaceP
   v <- lispVectP
   return (Keyword "with-meta" $ List [s, v])
@@ -205,7 +209,7 @@ lispMetaP = do
 lispValP :: Parser LispVal
 lispValP = choiceP [ lispNilP,    lispIntP,   lispTrueP
                    , lispStringP, lispMetaP,  lispAtomP
-                   , lispQuoteP , lispVectP,  lispSetP
+                   , lispQuoteP , lispVectP,  lispMapP
                    , lispSpliceP, lispQuasiP, lispUnqtP
                    , lispDerefP , lispKwP,    lispOpP
                    , lispListP ]

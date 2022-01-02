@@ -1,5 +1,7 @@
 module Printer where
 
+import Data.Maybe (fromJust)
+
 import Types
 
 pr_str :: LispVal -> String
@@ -10,7 +12,7 @@ pr_str Nil               = "()"
 pr_str LispTrue          = "t"
 pr_str (List l)          = pr_enclosed "(" ")" " " l
 pr_str (Vector v)        = pr_enclosed "[" "]" " " v
-pr_str (Set s)           = pr_enclosed "{" "}" " " s
+pr_str m@(Map _)         = pr_enclosed "{" "}" " " (fromJust $ fromCollection m)
 pr_str (Keyword s v)     = pr_kwd s v
 
 pr_enclosed :: String -> String -> String -> [LispVal] -> String
