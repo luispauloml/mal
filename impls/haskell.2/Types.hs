@@ -3,7 +3,7 @@ module Types where
 data LispVal
   = Atom String
   | Map           [(LispVal, LispVal)]
-  | Int           Int
+  | Int           Integer
   | Keyword       String LispVal
   | LispTrue
   | List          [LispVal]
