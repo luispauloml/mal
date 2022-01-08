@@ -156,8 +156,8 @@ lispMapP = let Parser p = lispEnclosedP List (charP '{') (charP '}')
            m <- fromListToMap a
            return (m, s)
 
-lispAtomP :: Parser LispVal
-lispAtomP = Atom <$> checkAndReparse n y
+lispSymbolP:: Parser LispVal
+lispSymbolP = Symbol <$> checkAndReparse n y
   where n = checkNextP (\c -> not $ or $ map ($c) notCases)
         y = takeWhileP (\c -> and $ map ($ c) cases)
         notCases = [isNumber, \c -> c /= '-' && isPunctuation c]
@@ -165,13 +165,13 @@ lispAtomP = Atom <$> checkAndReparse n y
         cases    = (not . isSeparator) : map (/=) ",()[]{}"
 
 lispKwP :: Parser LispVal
-lispKwP = let atomMap f (Atom s) = Atom (f s) in
+lispKwP = let atomMap f (Symbol s) = Symbol (f s) in
           do _ <- charP ':'
-             a <- lispAtomP
+             a <- lispSymbolP
              return $ atomMap (':':) a
 
 lispOpP :: Parser LispVal
-lispOpP = fmap Atom $ singleChar <|> multiChar
+lispOpP = fmap Symbol $ singleChar <|> multiChar
   where multiChar  = choiceP $ map stringP ["->>", "**"]
         singleChar = do
           c <- choiceP $ map charP "-+\\*"
@@ -209,7 +209,7 @@ lispMetaP = do
 
 lispValP :: Parser LispVal
 lispValP = choiceP [ lispNilP,    lispIntP,   lispTrueP
-                   , lispStringP, lispMetaP,  lispAtomP
+                   , lispStringP, lispMetaP,  lispSymbolP
                    , lispQuoteP , lispVectP,  lispMapP
                    , lispSpliceP, lispQuasiP, lispUnqtP
                    , lispDerefP , lispKwP,    lispOpP

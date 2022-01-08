@@ -5,7 +5,7 @@ import Data.Maybe (fromJust)
 import Types
 
 pr_str :: LispVal -> String
-pr_str (Atom s)          = s
+pr_str (Symbol s)        = s
 pr_str (Int i)           = show i
 pr_str (String s)        = '\"' : pr_string s ++ "\""
 pr_str Nil               = "()"

@@ -1,7 +1,7 @@
 module Types where
 
 data LispVal
-  = Atom String
+  = Symbol        String
   | Map           [(LispVal, LispVal)]
   | Int           Integer
   | Keyword       String LispVal
